@@ -1,7 +1,7 @@
 #!/usr/bin/env python3 
 # Script Name:                  File Encryption Part 1
 # Author:                       Heraldo Morales
-# Date of latest revision:      01/16/23
+# Date of latest revision:      01/16/24
 # Purpose:                      Script that encrypts a single file
 
 
