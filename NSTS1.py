@@ -5,7 +5,7 @@
 # Date of latest revision:      01/23/24
 # Purpose:                      Create your own network scanning tool with the Python library Scapy
 
-# Imports OS and scapy Librar
+# Imports OS and scapy Library
 import os
 from scapy.all import *
 
