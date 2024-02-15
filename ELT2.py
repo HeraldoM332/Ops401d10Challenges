@@ -9,8 +9,8 @@
 
 import os
 import logging
-from scapy.all import *
 from logging.handlers import RotatingFileHandler
+from scapy.all import *
 
 # Get the current directory of the script
 current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -20,6 +20,9 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.DEBUG)
 console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 logging.getLogger('').addHandler(console_handler)
+
+# Set the root logger level to DEBUG to ensure all messages are captured by the console handler
+logging.getLogger('').setLevel(logging.DEBUG)
 
 # Set up logging configuration with a rotating file handler
 log_file_path = os.path.join(current_directory, 'port_scanner.log')
