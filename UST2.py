@@ -8,15 +8,17 @@
 
 
 
-
-import smtplib
-from email.mime.text import MIMEText
+# Imports necessary Modules
+import smtplib  # Sendiing emails using SMTP
+from email.mime.text import MIMEText  # Composes email messages
 from email.mime.multipart import MIMEMultipart
-from datetime import datetime
-import time
-from ping3 import ping
-import traceback
+from datetime import datetime  # Working with date and time
+import time  # pausing execution
+from ping3 import ping  # Sending ICMP echo requests to check host status
+import traceback # Printing error messages during exception handling
 
+
+# Function to send email
 def send_notification(from_email, from_password, to_email, subject, body):
     try:
         msg = MIMEMultipart()
@@ -33,7 +35,7 @@ def send_notification(from_email, from_password, to_email, subject, body):
     except Exception as e:
         print("Failed to send email notification:")
         traceback.print_exc()
-
+# Function for uptime sensor
 def uptime_sensor(ip_address, to_email, from_email, from_password):
     last_status = None
     while True:
@@ -51,7 +53,7 @@ def uptime_sensor(ip_address, to_email, from_email, from_password):
 
         print(f"{timestamp} - {ip_address} is {current_status}")
         time.sleep(2)
-
+# Main script execution 
 if __name__ == "__main__":
     ip_to_test = "8.8.8.8"  # Example IP address, replace with your target IP
     to_email = input("Enter the email address to send notifications to: ")
@@ -59,6 +61,8 @@ if __name__ == "__main__":
     from_password = input("Enter the app password for two-step verification: ")
 
     uptime_sensor(ip_to_test, to_email, from_email, from_password)
+
+# Done
 
 
 
