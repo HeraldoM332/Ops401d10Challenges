@@ -5,12 +5,11 @@
 # Date of latest revision:      01/31/24
 # Purpose:                      Develop a custom tool that performs brute force attacks to better understand the types of automation employed by adversaries.
 
-
-# Imports paramiko for ssh connection, time for adding delays and ssl for handling SSL/TLS support
+# Imports necessary modules
 import paramiko
 import time
 import ssl
-
+import zipfile
 
 # Function which connects to SSH server, executes command, captures output, prints command and output. Writes output to a file and returns output file name.
 def paramiko_GKG(hostname, command, output_file):
@@ -56,18 +55,14 @@ def paramiko_GKG_bruteforce(hostname, usernames, passwords):
     finally:
         client.close()
 
-# Function prompts user for dictionary file path, opens specified file, reads lines, removes trailing whitespaces. Assigns line to a varaible 'word'. Prints word to screen, introduces delay of second and repeats process until are lines in file are processed.
+# Function prompts user for dictionary file path, opens specified file, reads lines, removes trailing whitespaces. Assigns line to a variable 'word'. Prints word to screen, introduces delay of second and repeats process until are lines in file are processed.
 def iterator():
     filepath = input("Enter your dictionary filepath:\n")
-    file = open(filepath, encoding="ISO-8859-1")
-    line = file.readline()
-    while line:
-        line = line.rstrip()
-        word = line
-        print(word)
-        time.sleep(1)
-        line = file.readline()
-    file.close()
+    with open(filepath, encoding="ISO-8859-1") as file:
+        for line in file:
+            word = line.rstrip()
+            print(word)
+            time.sleep(1)
 
 # Function takes a list of words as input, prompts user to enter word, checks if entered word is in provided list and prints corresponding message
 def check_for_word(words):
@@ -77,19 +72,29 @@ def check_for_word(words):
     else:
         print("The word is not in the dictionary")
 
-# Function reads contents of file 'rockyou.txt' initializes an empty list named password_list, opens specified file in read mode, reads each line. removes trailing whitespaces. appends it to password_list, prints list and continues reading until end of file.
+# Function reads contents of file 'rockyou.txt', initializes an empty list named password_list, opens specified file in read mode, reads each line, removes trailing whitespaces, appends it to password_list, and prints list and continues reading until end of file.
 def load_external_file():
     password_list = []
-    with open('rockyou.txt', 'r') as file:
-        while True:
-            line = file.readline()
-            if not line:
-                break
-            line = line.rstrip()
-            password_list.append(line)
-            print(password_list)
+    with open('rockyou.txt', 'r', encoding="ISO-8859-1") as file:
+        for line in file:
+            password_list.append(line.rstrip())
     return password_list
 
+# Function performs a brute force attack on a password-protected zip file using a list of passwords.
+def brute_force_zip(zip_filepath, password_list):
+    with zipfile.ZipFile(zip_filepath, 'r') as zip_ref:
+        for password in password_list:
+            try:
+                zip_ref.extractall(pwd=password.encode('utf-8'))
+                print(f'Success! The password is: {password}')
+                return True
+            except (RuntimeError, zipfile.BadZipFile):
+                continue
+            except zipfile.BadZipFile as e:
+                print(f'Error: {e}')
+                return False
+        print('Failed to brute force the zip file.')
+        return False
 
 # Main execution. Presents menu to user with options for different functions. Uses while loops to keep prompting until user exits. 
 if __name__ == "__main__":
@@ -99,7 +104,8 @@ Brute Force Wordlist Attack Tool Menu
 1 - Offensive, Dictionary Iterator
 2 - Offensive, Brute Force SSH Attack
 3 - Defensive, Password Recognized
-4 - Exit
+4 - Offensive, Brute Force ZIP File
+5 - Exit
 Please enter a number: 
 """)
         if mode == "1":
@@ -112,10 +118,13 @@ Please enter a number:
         elif mode == "3":
             word_list = load_external_file()
             check_for_word(word_list)
-        elif mode == '4':
+        elif mode == "4":
+            zip_filepath = input("Enter the path to the password-protected zip file: ")
+            passwords = load_external_file()
+            brute_force_zip(zip_filepath, passwords)
+        elif mode == '5':
             break
         else:
             print("Invalid selection...")
-
 
 # Done
