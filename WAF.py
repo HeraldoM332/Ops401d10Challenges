@@ -6,9 +6,9 @@
 # Purpose:                      A Python script that utilizes multiple banner grabbing approaches against a single target.
 
 
-
-# Imports subprocess which is used to run external commands and interact with their input/output.
 import subprocess
+import telnetlib
+import shutil
 
 # Colors for better readability
 class bcolors:
@@ -21,31 +21,60 @@ class bcolors:
     BOLD = '\033[1m'  # Bold
     UNDERLINE = '\033[4m'  # Underline
 
-# Function to perform banner grabbing
-def banner_grabbing(target, port):
+# Function to perform banner grabbing using Netcat
+def netcat_banner_grabbing(target, port):
+    if shutil.which("nc") is None:
+        print(f"{bcolors.FAIL}Netcat is not installed or not found in PATH.{bcolors.ENDC}")
+        return
     try:
-        # Running nmap command with subprocess.run
-        nmap_command = ['nmap', '-sV', '-p', str(port), '-Pn', target]
-        result = subprocess.run(nmap_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
-
-        # Output the result with colors
-        print(f"{bcolors.OKGREEN}Banner Grabbing Output:{bcolors.ENDC}")
-        print(result.stdout)
+        print(f"{bcolors.HEADER}Performing Netcat banner grab...{bcolors.ENDC}")
+        nc_command = f'echo | nc -v {target} {port}'
+        result = subprocess.run(nc_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        print(f"{bcolors.OKBLUE}Netcat Result:{bcolors.ENDC}\n{result.stdout or result.stderr}")
     except subprocess.CalledProcessError as e:
-        print(f"{bcolors.FAIL}An error occurred while trying to run nmap:{bcolors.ENDC}")
+        print(f"{bcolors.FAIL}An error occurred while trying to run Netcat:{bcolors.ENDC}")
         print(e.stderr)
 
-# Main function to get user input and call the banner grabbing function
+# Function to perform banner grabbing using Telnet
+def telnet_banner_grabbing(target, port):
+    try:
+        print(f"{bcolors.HEADER}Performing Telnet banner grab...{bcolors.ENDC}")
+        with telnetlib.Telnet(target, port) as tn:
+            tn.write(b'\n')
+            output = tn.read_until(b'\n', timeout=5).decode('utf-8')
+            print(f"{bcolors.OKBLUE}Telnet Result:{bcolors.ENDC}\n{output}")
+    except Exception as e:
+        print(f"{bcolors.FAIL}An error occurred while trying to run Telnet:{bcolors.ENDC}")
+        print(e)
+
+# Function to perform banner grabbing using Nmap
+def nmap_banner_grabbing(target, port):
+    if shutil.which("nmap") is None:
+        print(f"{bcolors.FAIL}Nmap is not installed or not found in PATH.{bcolors.ENDC}")
+        return
+    try:
+        print(f"{bcolors.HEADER}Performing Nmap banner grab...{bcolors.ENDC}")
+        nmap_command = ['nmap', '-sV', '-p', str(port), '-Pn', target]
+        result = subprocess.run(nmap_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        print(f"{bcolors.OKGREEN}Nmap Result:{bcolors.ENDC}\n{result.stdout}")
+    except subprocess.CalledProcessError as e:
+        print(f"{bcolors.FAIL}An error occurred while trying to run Nmap:{bcolors.ENDC}")
+        print(e.stderr)
+
 def main():
-    # Getting user input
-    target = input(f"{bcolors.HEADER}Enter the URL or IP address (e.g., scanme.nmap.org): {bcolors.ENDC}")
-    port = input(f"{bcolors.OKBLUE}Enter the port number (e.g., 80): {bcolors.ENDC}")
+    # Prompt user for input
+    target = input("Please enter the URL or IP address: ")
+    port = input("Please enter the port number: ")
 
-    # Perform banner grabbing
-    banner_grabbing(target, port)
+    # Perform banner grabbing using Netcat
+    netcat_banner_grabbing(target, port)
+    
+    # Perform banner grabbing using Telnet
+    telnet_banner_grabbing(target, port)
+    
+    # Perform banner grabbing using Nmap
+    nmap_banner_grabbing(target, port)
 
-# Entry point of the script
 if __name__ == "__main__":
     main()
 
-# Done
