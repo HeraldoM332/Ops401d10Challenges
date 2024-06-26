@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 # Script Name:                  Cookie Capture Capades
 # Author:                       Heraldo Morales
 # Date of latest revision:      06/26/24
